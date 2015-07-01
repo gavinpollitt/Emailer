@@ -2,6 +2,7 @@ package uk.gav;
 
 import java.util.GregorianCalendar;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.naming.InitialContext;
@@ -40,19 +41,26 @@ public class EventController /* extends Application */{
 
 	@POST
 	public void addExecution(EventExecution ee) {
-		ee.setTimestamp(GregorianCalendar.getInstance().getTime());
-		System.out.println("The value is::" + ee.getTimestamp());
 		injectTimerManuallyUntilAutoWorks();
-		timer.createTimer();
+		timer.createTimer(ee.getId());
+		Environment.reload();
 	}
 
 	@GET
 	@Path("/{param}")
-	public Response printMessage(@PathParam("param") String msg) {
+	public Response printStatus(@PathParam("param") String msg) {
 
-		String result = "Restful example : " + msg;
-
-		return Response.status(200).entity(result).build();
+		injectTimerManuallyUntilAutoWorks();
+		Set<String> ids = timer.getTimerIDs();
+		
+		String output ="";
+		if (ids.contains(msg)) {
+			output = "Execution:" + msg + " is currently running\n";
+		}
+		else {
+			output = "Execution:" + msg + " is not running\n";
+		}
+		return Response.status(200).entity(output).build();
 
 	}
 
@@ -60,7 +68,13 @@ public class EventController /* extends Application */{
 	@Path("/{id}")
 	public void removeExecution(@PathParam("id") String id) {
 		injectTimerManuallyUntilAutoWorks();
-		timer.cancelTimer();
+		
+		if (id.equals("ALL_TIMERS")) {
+			timer.cancelAllTimers();
+		}
+		else {
+			timer.cancelTimer(id);
+		}
 	}
 
 	public void printJNDITree(InitialContext context, int pad, String ct) {
