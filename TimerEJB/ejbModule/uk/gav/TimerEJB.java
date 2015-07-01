@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
@@ -31,18 +34,17 @@ import uk.gav.utilities.Environment;
 
 @Stateless(name = "Timer")
 public class TimerEJB implements TimerLocal {
-	private final static String EVENT_DATASOURCE = Environment.class.getName() + ".DATA_SOURCE";
+	private final static String EVENT_DATASOURCE = Environment.class.getName()
+			+ ".DATA_SOURCE";
 
 	@Resource
 	private TimerService timerService;
-
-	private Timer timer;
 
 	private DataSource eventSource;
 
 	private QueueConnectionFactory qconFactory;
 	private Queue queue;
-	private int maxEventBlock= JMSConstants.MAX_EMAIL_PER_CYCLE;
+	private int maxEventBlock = JMSConstants.MAX_EMAIL_PER_CYCLE;
 
 	private final static ObjectMapper mapper = new ObjectMapper();
 
@@ -53,10 +55,12 @@ public class TimerEJB implements TimerLocal {
 			InitialContext context = new InitialContext(prop);
 
 			// Grab the Datasource
-			eventSource = (DataSource) context.lookup(prop.getProperty(EVENT_DATASOURCE));
+			eventSource = (DataSource) context.lookup(prop
+					.getProperty(EVENT_DATASOURCE));
 			System.out.println("DATASOURCE located:: " + eventSource);
 
-			qconFactory = (QueueConnectionFactory) context.lookup(JMSConstants.JMS_FACTORY);
+			qconFactory = (QueueConnectionFactory) context
+					.lookup(JMSConstants.JMS_FACTORY);
 			queue = (Queue) context.lookup(JMSConstants.JMS_EMAIL_Q);
 		} catch (Exception e) {
 			System.out.println("OH NO...data source cannot be found " + e);
@@ -64,17 +68,78 @@ public class TimerEJB implements TimerLocal {
 
 	}
 
-	public void createTimer() {
-		timer = timerService.createTimer(10000, 120000, null);
+	public void createTimer(String id) {
+		timerService.createTimer(10000, 120000, id);
 	}
 
-	public void cancelTimer() {
-		timer.cancel();
-	};
+	public void cancelTimer(String id) {
+		List<Timer> timers = getRunningTimers(new String[] { id });
 
+		if (timers.size() > 0) {
+			for (Timer t : timers) {
+				t.cancel();
+				System.out.println("Timer:" + id + " cancelled");
+			}
+		} else {
+			throw new RuntimeException("Cannot locate timer:" + id
+					+ " to cancel");
+		}
+	};
 	
+	public void cancelAllTimers() {
+		List<Timer> timers = getRunningTimers();
+		
+		for (Timer t:timers) {
+			System.out.println("Cancelled timer " + (t.getInfo() != null?t.getInfo():t));
+			t.cancel();
+		}
+	}
+
+	private List<Timer> getRunningTimers(final String[] ids) {
+		Set<String> execs = new HashSet<String>(Arrays.asList(ids));
+		List<Timer> foundTimers = new ArrayList<Timer>();
+
+		Iterator<Timer> timers = getRunningTimers().iterator();
+		while (timers.hasNext() && execs.size() > 0) {
+			Timer t = timers.next();
+			if (execs.contains(t.getInfo())) {
+				foundTimers.add(t);
+				execs.remove(t.getInfo());
+			}
+		}
+
+		return foundTimers;
+	}
+
+	private List<Timer> getRunningTimers() {
+		Iterator<?> timers = timerService.getTimers().iterator();
+
+		List<Timer> outTimers = new ArrayList<Timer>();
+		while (timers.hasNext()) {
+			outTimers.add((Timer) timers.next());
+		}
+
+		return outTimers;
+	}
+	
+	public Set<String> getTimerIDs() {
+		Set<String> ids = new HashSet<String>();
+		for (Timer t:getRunningTimers()) {
+			System.out.println("Located time with name::" + t.getInfo());
+			
+			if (t.getInfo() != null) {
+				ids.add(t.getInfo().toString());
+			}
+			else {
+				ids.add(t.toString());				
+			}
+		}
+		
+		return ids;
+	}
+
 	@TransactionAttribute(value = TransactionAttributeType.REQUIRED)
-	private void stageEvents(List<EventEntity> eventList) throws Exception {
+	private void stageEvents(List<EventEntity> eventList, Timer timer) throws Exception {
 
 		QueueConnection qcon = qconFactory.createQueueConnection();
 		QueueSession qsession = qcon.createQueueSession(false,
@@ -82,47 +147,52 @@ public class TimerEJB implements TimerLocal {
 		QueueSender qsender = qsession.createSender(queue);
 		TextMessage msg = qsession.createTextMessage();
 		qcon.start();
-		
-		//Get ready to update status on initial table
+
+		// Get ready to update status on initial table
 		Connection c = eventSource.getConnection();
 		PreparedStatement s = c
-				.prepareStatement("UPDATE service_event_queue SET status = '1' WHERE id = ?");
+				.prepareStatement("UPDATE service_event_queue SET status = '1' WHERE event_id = ?");
 
-		for (EventEntity ee:eventList) {
+		for (EventEntity ee : eventList) {
 			String jsonContent = eventToJson(ee);
 			msg.setText(jsonContent);
 			qsender.send(msg);
-			
-			//Add the id to SQL batch
+
+			// Add the id to SQL batch
 			s.setInt(1, ee.getId());
 			s.addBatch();
 		}
-		
+
 		int[] affectedRecords = s.executeBatch();
-				
+
 		qsender.close();
 		qsession.close();
 		qcon.close();
 		c.close();
-		
-		System.out.println("Affected Records:::" + affectedRecords);
+
+		System.out.println("Timer: " + timer.getInfo()  + ", Staged Records:::" + affectedRecords.length);
 	}
 
 	private static String eventToJson(EventEntity ee) throws Exception {
 		return mapper.writeValueAsString(ee);
 	}
-	
+
 	@Timeout
-	public void timeout(Timer arg0) {
-		System.out.println("recurring timer1 : " + new Date());
+	@TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+	public void timeout(Timer timer) {
+		System.out.println("Timer: " + timer.getInfo() + " activated");
 
 		try {
 			Connection c = eventSource.getConnection();
+			// Ensure no contesting over the data, by only allowing one thread to read at a time.
+			c.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			PreparedStatement s = c
 					.prepareStatement("select event_id, event_type, event from service_event_queue where status IS NULL AND rownum <= ? FOR UPDATE");
 			s.setInt(1, maxEventBlock);
 			ResultSet events = s.executeQuery();
 
+			long 	rows = 0;
+			int		start = -1, end = 0;
 			List<EventEntity> eventList = new ArrayList<EventEntity>();
 			while (events.next()) {
 				EventEntity e = new EventEntity();
@@ -131,15 +201,28 @@ public class TimerEJB implements TimerLocal {
 				e.setEventContent(events.getString(3));
 				System.out.println("The event is:: " + e);
 				eventList.add(e);
+				
+				start = start < 0?events.getInt(1):start;
+				end	  = events.getInt(1);
+				rows++;
 			}
 
+			System.out.print("Timer: " + timer.getInfo()  + " read: " + rows);
+			if (rows == 0) {
+				System.out.println();
+			}
+			else {
+				System.out.println(", start id: " + start + ", end id: " + end);
+			}
+											
 			s.close();
 			c.close();
 
- 			stageEvents(eventList);
+			stageEvents(eventList, timer);
 
 		} catch (Exception e) {
-			System.out.println("Exception consuming current event batch:::" + e);
+			System.out
+					.println("Exception consuming current event batch:::" + e);
 		}
 
 	}
