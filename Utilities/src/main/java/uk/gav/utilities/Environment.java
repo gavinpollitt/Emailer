@@ -10,11 +10,33 @@ public class Environment {
 	private final static String JMSENVSOURCE = "jms.properties";
 	private final static String CONTEXTENVSOURCE = "connection.properties";
 	private final static String EMAILENVSOURCE = "email.properties";
-	private final static Properties jmsEnv;
-	private final static Properties contextEnv;
-	private final static Properties emailEnv;
+	private static Properties jmsEnv;
+	private static Properties contextEnv;
+	private static Properties emailEnv;
 	
 	static {
+		init();
+	}
+	
+	public static Properties getContextEnv() {
+		return contextEnv;
+	}
+
+
+	public static Properties getJmsEnv() {
+		return jmsEnv;
+	}
+
+	public static Properties getEmailEnv() {
+		return emailEnv;
+	}
+
+	
+	public static void reload() {
+		init();
+	}
+	
+	private final static void init() {
 		try {
 			jmsEnv = loadEnvironment(JMSENVSOURCE);
 			contextEnv = loadEnvironment(CONTEXTENVSOURCE);
@@ -23,9 +45,10 @@ public class Environment {
 		catch (Exception e) {
 			throw new RuntimeException("Cannot load environment variables::" + e);
 		}
+		
 	}
 	
-	private final static Properties loadEnvironment(String envSource) throws Exception {
+ 	private final static Properties loadEnvironment(String envSource) throws Exception {
 		Properties prop = new Properties();
 		InputStream iStream = null;
 		
@@ -51,19 +74,4 @@ public class Environment {
 		return prop;
 	}
 
-
-	public static Properties getContextEnv() {
-		return contextEnv;
-	}
-
-
-	public static Properties getJmsEnv() {
-		return jmsEnv;
-	}
-
-	public static Properties getEmailEnv() {
-		return emailEnv;
-	}
-
-	
 }
