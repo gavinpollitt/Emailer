@@ -4,7 +4,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 public class Environment {
+
+	final static Logger log = Logger.getLogger(Environment.class.getName());
 
 	private final static String PROP_LOC = "/opt/app/ufa/ufacit1/live/ufadomain/properties/";
 	private final static String JMSENVSOURCE = "jms.properties";
@@ -52,15 +56,15 @@ public class Environment {
 		Properties prop = new Properties();
 		InputStream iStream = null;
 		
-		System.out.println("Attempting to load properties for::"+ envSource);
+		log.info("Attempting to load properties for::"+ envSource);
 		//Try and load from filesystem first
 		try {
 			iStream = new FileInputStream(PROP_LOC + envSource);
 			prop.load(iStream);
-			System.out.println(envSource + " loaded from filesystem");
+			log.info(envSource + " loaded from filesystem");
 		}
 		catch (Exception e) {
-				System.out.println("GAVVYYYYY::::" + e); 
+				log.info("Properties not available on file system"); 
 		}
 			
 		//Otherwise from classpath
@@ -68,7 +72,7 @@ public class Environment {
 			iStream = Environment.class.getClassLoader()
 					.getResourceAsStream("META-INF/" + envSource);
 			prop.load(iStream);
-			System.out.println(envSource + " loaded from classpath");
+			log.info(envSource + " loaded from classpath");
 		}
 		
 		return prop;

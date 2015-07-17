@@ -15,6 +15,7 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import uk.gav.utilities.Environment;
@@ -22,7 +23,6 @@ import uk.gav.utilities.Environment;
 /**
  * Session Bean implementation class EmailEJB
  */
-//@MessageDriven(ejbName = "EventQueueListenerMDB", destinationType="javax.jms.Queue",destinationJndiName=JMSConstants.JMS_EMAIL_Q)
 @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
 @MessageDriven(
 		  name = "EventQueueListenerMDB",
@@ -38,6 +38,7 @@ import uk.gav.utilities.Environment;
 		  }
 		)
 public class EmailMDB implements MessageListener {
+	final static Logger log = Logger.getLogger(EmailMDB.class.getName());
 
 	private final static String EVENT_DATASOURCE = Environment.class.getName() + ".DATA_SOURCE";
 
@@ -54,7 +55,7 @@ public class EmailMDB implements MessageListener {
 		Properties prop = Environment.getContextEnv();
 		InitialContext context = new InitialContext(prop);
 		eventSource = (DataSource) context.lookup(prop.getProperty(EVENT_DATASOURCE));
-		System.out.println("DATASOURCE located in EmailMDB:: " + eventSource);
+		log.debug("DATASOURCE located in EmailMDB:: " + eventSource);
 		
 	}
 	
@@ -66,7 +67,7 @@ public class EmailMDB implements MessageListener {
 		
 			EventEmailContent eec = new EventEmailContent(ee);
 			
-			System.out.println("The actual event content is::" + eec + "...and will send the email...");
+			log.debug("The actual event content is::" + eec + "...and will send the email...");
 	
 			Emailer mailer = Emailer.getInstance();
 			mailer.issueEmail(eec);
@@ -83,7 +84,7 @@ public class EmailMDB implements MessageListener {
 
 			c.close();
 			
-			System.out.println("Affected Records following email send:::" + affectedRecords);
+			log.debug("Affected Records following email send:::" + affectedRecords);
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Cannot extract event from message::" + e);

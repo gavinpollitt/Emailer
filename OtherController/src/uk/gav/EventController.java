@@ -1,6 +1,5 @@
 package uk.gav;
 
-import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.Set;
 
@@ -16,27 +15,29 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
+
 import uk.gav.utilities.Environment;
 
 @Path("/execution")
-public class EventController /* extends Application */{
+public class EventController {
+	final static Logger log = Logger.getLogger(EventController.class.getName());
+	 
 	@EJB(mappedName = "java:com/env/ejb/TimerLocal")
 	TimerLocal timer;
 
 	private void injectTimerManuallyUntilAutoWorks() {
-		System.out.println("Timer injected is::" + timer);
+		log.debug("Timer bean injected is::" + timer);
 
 		Properties env = Environment.getContextEnv();
 
 		try {
 			InitialContext context = new InitialContext(env);
-			printJNDITree(context, 0, "java:comp/env");
+			//printJNDITree(context, 0, "java:comp/env");
 			timer = (TimerLocal) context.lookup("java:comp/env/ejb/TimerLocal");
 		} catch (Exception e) {
-			System.out.println("Exception getting TimerLocal EJB:::" + e);
+			log.error("Exception getting TimerLocal EJB:::" + e);
 		}
-		System.out.println("Timer grabbed is::" + timer);
-
 	}
 
 	@POST
@@ -44,6 +45,7 @@ public class EventController /* extends Application */{
 		injectTimerManuallyUntilAutoWorks();
 		timer.createTimer(ee.getId());
 		Environment.reload();
+		log.debug("RESTful POST completed to create execution timer "+ ee.getId());
 	}
 
 	@GET
@@ -60,6 +62,7 @@ public class EventController /* extends Application */{
 		else {
 			output = "Execution:" + msg + " is not running\n";
 		}
+		log.debug("RESTful GET completed to give timer status for " + msg);
 		return Response.status(200).entity(output).build();
 
 	}
@@ -75,6 +78,7 @@ public class EventController /* extends Application */{
 		else {
 			timer.cancelTimer(id);
 		}
+		log.debug("RESTful DELETE completed to remove execution timer " + id);
 	}
 
 	public void printJNDITree(InitialContext context, int pad, String ct) {

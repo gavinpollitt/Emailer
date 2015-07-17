@@ -10,7 +10,11 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 public final class Emailer {
+	final static Logger log = Logger.getLogger(Emailer.class.getName());
 
 	private final static Emailer instance = new Emailer();
 
@@ -30,8 +34,8 @@ public final class Emailer {
 
 	public void issueEmail(EventEmailContent eec) throws Exception {
 
-		System.out.println("Message to Send:::");
-		System.out.println("SMTP:::" + smtp);
+		log.debug("Message to Send of type:::" + eec.getContentType());
+		log.debug("SMTP Details:::" + smtp);
 		
 		
 		Session session = Session.getInstance(smtp, new Authenticator() {
@@ -40,7 +44,8 @@ public final class Emailer {
 			}
 		});
 
-		session.setDebug(true);
+		session.setDebug(log.isDebugEnabled());
+		
 		Message message = new MimeMessage(session);
 
 		message.setFrom(new InternetAddress(EmailConstants.EMAIL_SENDER));
@@ -65,11 +70,11 @@ public final class Emailer {
 			tr.close();		
 		}
 		catch (Exception e) {
-			System.out.println("Sending the message, Exception::" + e);
+			log.error("Sending the message, Exception::" + e);
 			throw e;
 		}
 		
-		System.out.println("Message is sent successfully");
+		log.debug("Message is sent successfully");
 	}
 
 }

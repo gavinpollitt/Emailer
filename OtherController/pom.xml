@@ -49,5 +49,16 @@
 			<version>1.18</version>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.9</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>uk.gav</groupId>
+			<artifactId>timerejb</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>

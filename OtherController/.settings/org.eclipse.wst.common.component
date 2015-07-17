@@ -3,6 +3,9 @@
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="timerejb-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/TimerEJB/TimerEJB">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module deploy-path="/" handle="module:/overlay/var/M2_REPO/jerseybundle/jerseybundle/1.18/jerseybundle-1.18.war?unpackFolder=target/m2e-wtp/overlays&amp;includes=**/**&amp;excludes=META-INF/MANIFEST.MF">
             <dependency-type>consumes</dependency-type>
         </dependent-module>

@@ -19,12 +19,8 @@
 							<bundleFileName>OtherController.war</bundleFileName>
 							<contextRoot>/Timer</contextRoot>
 						</webModule>
-						<!--
-						<webModule>
-							<groupId>jerseybundle</groupId>
-							<artifactId>jerseybundle</artifactId>
-						</webModule>
-						-->
+						<!-- <webModule> <groupId>jerseybundle</groupId> <artifactId>jerseybundle</artifactId> 
+							</webModule> -->
 						<ejbModule>
 							<groupId>uk.gav</groupId>
 							<artifactId>timerejb</artifactId>
@@ -53,6 +49,12 @@
 							<!-- below specific to WLogic - would be just lib in standard J2EE -->
 							<bundleDir>APP-INF/lib</bundleDir>
 						</jarModule>
+						<jarModule>
+							<groupId>log4j</groupId>
+							<artifactId>log4j</artifactId>
+							<!-- below specific to WLogic - would be just lib in standard J2EE -->
+							<bundleDir>APP-INF/lib</bundleDir>
+						</jarModule>
 					</modules>
 					<displayName>My Ear Name displayed in the App Server</displayName>
 					<!-- If I want maven to generate the application.xml, set this to true -->
@@ -76,6 +78,11 @@
 			<artifactId>timerejb</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<type>ejb</type>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.9</version>
 		</dependency>
 	</dependencies>
 </project>
