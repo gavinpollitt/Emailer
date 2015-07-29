@@ -1,13 +1,32 @@
-package uk.gav;
+package uk.gav.event.email;
 
 import java.util.GregorianCalendar;
 import java.util.regex.Pattern;
 
+import uk.gav.event.ContentProcessor;
+import uk.gav.event.EventEntity;
+
+/**
+ * 
+ * @author gavin
+ *
+ * Provide the specific template processing for email events
+ */
 public class EmailContentProcessor extends ContentProcessor {
 
+	/**
+	 * The regular expression of the strings to replace in the template
+	 */
 	private final static String  patternString = "%%.*?%%";
+	
+	/**
+	 * The compiled pattern
+	 */
 	private final static Pattern repPattern = Pattern.compile(patternString);
 	
+	/**
+	 * The event content that will be the subject of this processor
+	 */
 	private EventEmailContent cont;
 		
 	public static void main(String[] args) {
@@ -28,8 +47,11 @@ public class EmailContentProcessor extends ContentProcessor {
 		this.cont = cont;
 	}
 	
+	/**
+	 * Will replace the text identified by the regular expression parse of the superclass.
+	 */
 	@Override
-	public String replaceField(String regEx) {
+	protected String replaceField(String regEx) {
 		String output = regEx;
 		if ("%%to%%".equals(regEx)) {
 			if (cont != null) {

@@ -1,4 +1,4 @@
-package uk.gav.utilities;
+package uk.gav.event.utilities;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -6,6 +6,14 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+/**
+ * 
+ * @author gavin
+ *
+ * Centralise the acquisition of the external Java properties for this service.
+ * Filesystem will be examined first and, if not present, classpath loading will be the
+ * default.
+ */
 public class Environment {
 
 	final static Logger log = Logger.getLogger(Environment.class.getName());

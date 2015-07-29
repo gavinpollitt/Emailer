@@ -1,4 +1,4 @@
-package uk.gav;
+package uk.gav.event.email;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,23 +18,30 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import uk.gav.utilities.Environment;
+import uk.gav.event.EventEntity;
+import uk.gav.event.constants.JMSConstants;
+import uk.gav.event.utilities.Environment;
+import uk.gav.event.utilities.MessageState;
 
 /**
- * Session Bean implementation class EmailEJB
+ * MessageDrivenBean to access the Email event queue and provide the necessary delegation for
+ * issueing the physical emails to the SMTP server.
+ * @author gavin
+ *
  */
+@SuppressWarnings("restriction")
 @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
 @MessageDriven(
-		  name = "EventQueueListenerMDB",
+		  name = "EmailQueueListenerMDB",
 		  activationConfig = {
 		    @ActivationConfigProperty(propertyName  = "destinationType", 
 		                              propertyValue = "javax.jms.Queue"),
 		 		 
 		    @ActivationConfigProperty(propertyName  = "connectionFactoryJndiName",
-		                              propertyValue = JMSConstants.JMS_FACTORY), // External JNDI Name
+		                              propertyValue = JMSConstants.JMS_FACTORY_EVENT), // External JNDI Name
 		 
 		    @ActivationConfigProperty(propertyName  = "destinationJndiName",
-		                              propertyValue = JMSConstants.JMS_EMAIL_Q)
+		                              propertyValue = JMSConstants.JMS_Q_EMAIL)
 		  }
 		)
 public class EmailMDB implements MessageListener {
@@ -42,6 +49,11 @@ public class EmailMDB implements MessageListener {
 
 	private final static String EVENT_DATASOURCE = Environment.class.getName() + ".DATA_SOURCE";
 
+	private final static String EMAIL_ISSUED_SQL = "UPDATE service_event_queue SET status = ? WHERE event_id = ?";
+
+	/**
+	 * The injected message context.
+	 */
 	@Resource
 	javax.ejb.MessageDrivenContext mc;
 	
@@ -50,6 +62,10 @@ public class EmailMDB implements MessageListener {
 	// Could be @Resource injected, but don't want to hard code JNDI ref.
 	private DataSource eventSource;
 
+	/**
+	 * Initialise the datasource for updating source event table
+	 * @throws Exception
+	 */
 	public EmailMDB() throws Exception {
 		// Grab the Datasource
 		Properties prop = Environment.getContextEnv();
@@ -59,10 +75,14 @@ public class EmailMDB implements MessageListener {
 		
 	}
 	
+	/**
+	 * Standard MDB entry method. Method will delegate to utilty classes to issue event content
+	 * to email destination.
+	 */
 	public void onMessage(Message message) {
-		System.out.println("The message is::" + message);
 		
 		try {
+			//serialise the JSON message into entity objects.
 			EventEntity ee = mapper.readValue(((TextMessage)message).getText(), EventEntity.class);
 		
 			EventEmailContent eec = new EventEmailContent(ee);
@@ -75,10 +95,12 @@ public class EmailMDB implements MessageListener {
 			//Get ready to update status on initial table
 			Connection c = eventSource.getConnection();
 			PreparedStatement s = c
-					.prepareStatement("UPDATE service_event_queue SET status = '2' WHERE event_id = ?");
+					.prepareStatement(EMAIL_ISSUED_SQL);
 
+			//Update the status of the original event message
+			s.setString(1, MessageState.QUEUED.progressState().getStateID().toString());
 			//Add the id to SQL batch
-			s.setInt(1, ee.getId());
+			s.setInt(2, ee.getId());
 			
 			int affectedRecords = s.executeUpdate();
 

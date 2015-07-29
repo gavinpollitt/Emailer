@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>uk.gav</groupId>
-	<artifactId>TimerService</artifactId>
+	<groupId>uk.gav.event</groupId>
+	<artifactId>EventService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>ear</packaging>
 	<build>
@@ -14,19 +14,19 @@
 					<earSourceDirectory>EarContent</earSourceDirectory>
 					<modules>
 						<webModule>
-							<groupId>uk.gav</groupId>
-							<artifactId>OtherController</artifactId>
-							<bundleFileName>OtherController.war</bundleFileName>
+							<groupId>uk.gav.event</groupId>
+							<artifactId>TimerController</artifactId>
+							<bundleFileName>TimerController.war</bundleFileName>
 							<contextRoot>/Timer</contextRoot>
 						</webModule>
 						<!-- <webModule> <groupId>jerseybundle</groupId> <artifactId>jerseybundle</artifactId> 
 							</webModule> -->
 						<ejbModule>
-							<groupId>uk.gav</groupId>
+							<groupId>uk.gav.event</groupId>
 							<artifactId>timerejb</artifactId>
 						</ejbModule>
 						<jarModule>
-							<groupId>uk.gav</groupId>
+							<groupId>uk.gav.event</groupId>
 							<artifactId>Utilities</artifactId>
 							<!-- below specific to WLogic - would be just lib in standard J2EE -->
 							<bundleDir>APP-INF/lib</bundleDir>
@@ -56,25 +56,25 @@
 							<bundleDir>APP-INF/lib</bundleDir>
 						</jarModule>
 					</modules>
-					<displayName>My Ear Name displayed in the App Server</displayName>
+					<displayName>EventService</displayName>
 					<!-- If I want maven to generate the application.xml, set this to true -->
 					<generateApplicationXml>true</generateApplicationXml>
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>TimerService</finalName>
+		<finalName>EventService</finalName>
 	</build>
 
 	<!-- Define the versions of your ear components here -->
 	<dependencies>
 		<dependency>
-			<groupId>uk.gav</groupId>
-			<artifactId>OtherController</artifactId>
+			<groupId>uk.gav.event</groupId>
+			<artifactId>TimerController</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<type>war</type>
 		</dependency>
 		<dependency>
-			<groupId>uk.gav</groupId>
+			<groupId>uk.gav.event</groupId>
 			<artifactId>timerejb</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<type>ejb</type>

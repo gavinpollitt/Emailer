@@ -1,4 +1,4 @@
-package uk.gav;
+package uk.gav.event.email;
 
 import java.util.Properties;
 
@@ -13,11 +13,24 @@ import javax.mail.internet.MimeMessage;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * The class responsible for issueing the physical emails to the SMTP server.
+ * This class is registered as a Singleton class to prevent the need for continuous
+ * accessing of properties.
+ * @author gavin
+ *
+ */
 public final class Emailer {
 	final static Logger log = Logger.getLogger(Emailer.class.getName());
 
+	/**
+	 * Singleton object instance of this class
+	 */
 	private final static Emailer instance = new Emailer();
 
+	/**
+	 * The system properties required to access the SMTP server
+	 */
 	private Properties smtp;
 
 	private Emailer() {
@@ -32,31 +45,54 @@ public final class Emailer {
 		return instance;
 	}
 
+	/**
+	 * Utilising Javamail API, issue the email content through the SMTP server
+	 * @param eec The contents for issue in the email.
+	 * @throws Exception If issues with transport of email content.
+	 */
 	public void issueEmail(EventEmailContent eec) throws Exception {
 
 		log.debug("Message to Send of type:::" + eec.getContentType());
 		log.debug("SMTP Details:::" + smtp);
 		
-		
+		// If a secure send isn't required, the credential information will be ignored.
 		Session session = Session.getInstance(smtp, new Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
 				return new PasswordAuthentication(EmailConstants.EMAIL_USERNAME, EmailConstants.EMAIL_PASSWORD);
 			}
 		});
 
+		// SMTP debug
 		session.setDebug(log.isDebugEnabled());
 		
 		Message message = new MimeMessage(session);
 
 		message.setFrom(new InternetAddress(EmailConstants.EMAIL_SENDER));
 
-		for (int i = 0; i <eec.getTo().length;i++) {
+		// Primary recipients
+		int ln = (eec.getTo() == null?0:eec.getTo().length);
+		for (int i = 0; i <ln;i++) {
 			message.addRecipient(Message.RecipientType.TO,
 					InternetAddress.parse(eec.getTo()[i])[0]);
 		}
-		
+
+		// CC list
+		ln = (eec.getCc() == null?0:eec.getCc().length);
+		for (int i = 0; i <ln;i++) {
+			message.addRecipient(Message.RecipientType.CC,
+					InternetAddress.parse(eec.getCc()[i])[0]);
+		}
+
+		// Bcc list
+		ln = (eec.getBcc() == null?0:eec.getBcc().length);
+		for (int i = 0; i <ln;i++) {
+			message.addRecipient(Message.RecipientType.BCC,
+					InternetAddress.parse(eec.getBcc()[i])[0]);
+		}
+
 		message.setSubject(eec.getSubject());
 
+		// Parse the template, perform any replacements and set text of email.
 		EmailContentProcessor cont = new EmailContentProcessor();
 		cont.setEventEmailContent(eec);
 		message.setText(cont.processContent(EmailConstants.getTemplate(eec)));

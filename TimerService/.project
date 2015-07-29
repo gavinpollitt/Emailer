@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>TimerService</name>
+	<name>EventService</name>
 	<comment></comment>
 	<projects>
 		<project>OtherController</project>
