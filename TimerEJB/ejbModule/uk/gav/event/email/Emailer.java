@@ -95,7 +95,7 @@ public final class Emailer {
 		// Parse the template, perform any replacements and set text of email.
 		EmailContentProcessor cont = new EmailContentProcessor();
 		cont.setEventEmailContent(eec);
-		message.setText(cont.processContent(EmailConstants.getTemplate(eec)));
+		message.setContent(cont.processContent(EmailConstants.getTemplate(eec)), "text/html");
 
 		try {
 			//Transport.send(message);  //This is for later versions; forget the Weblogic frig below.

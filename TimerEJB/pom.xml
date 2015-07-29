@@ -23,6 +23,16 @@
 					<ejbVersion>3.0</ejbVersion>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
+				<configuration>
+					<systemPropertyVariables>
+						<propertyLocation>${project.build.directory}/classes/</propertyLocation>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -53,14 +63,8 @@
 			<artifactId>jackson-xc</artifactId>
 			<version>1.9.2</version>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>javax.mail-api</artifactId>
-			<version>1.5.3</version>
-			<scope>provided</scope>
-		</dependency>
-		-->
+		<!-- <dependency> <groupId>javax.mail</groupId> <artifactId>javax.mail-api</artifactId> 
+			<version>1.5.3</version> <scope>provided</scope> </dependency> -->
 		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
@@ -71,7 +75,7 @@
 			<groupId>com.sun.mail</groupId>
 			<artifactId>javax.mail</artifactId>
 			<version>1.4</version>
-			<!-- <version>1.5.3</version>-->
+			<!-- <version>1.5.3</version> -->
 			<scope>system</scope>
 			<systemPath>/opt/weblogic/modules/javax.mail_1.4.jar</systemPath>
 		</dependency>
@@ -87,4 +91,13 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
