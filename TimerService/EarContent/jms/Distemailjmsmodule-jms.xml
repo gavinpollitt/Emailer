@@ -15,8 +15,9 @@
       <attach-jmsx-user-id>false</attach-jmsx-user-id>
     </security-params>
   </connection-factory>
-  <queue name="EmailQueue">
+  <uniform-distributed-queue name="EmailQueue">
     <sub-deployment-name>EventSub</sub-deployment-name>
+    <default-targeting-enabled>false</default-targeting-enabled>
     <delivery-params-overrides>
       <redelivery-delay>20000</redelivery-delay>
     </delivery-params-overrides>
@@ -25,9 +26,10 @@
       <redelivery-limit>3</redelivery-limit>
     </delivery-failure-params>
     <jndi-name>jms/EmailQueue</jndi-name>
-  </queue>
-  <queue name="EmailErrorQueue">
+  </uniform-distributed-queue>
+  <uniform-distributed-queue name="EmailErrorQueue">
     <sub-deployment-name>EventSub</sub-deployment-name>
+    <default-targeting-enabled>false</default-targeting-enabled>
     <jndi-name>jms/EmailErrorQueue</jndi-name>
-  </queue>
+  </uniform-distributed-queue>
 </weblogic-jms>

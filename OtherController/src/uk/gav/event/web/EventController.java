@@ -122,7 +122,7 @@ public class EventController {
 		}
 	}
 
-	private void printNE(InitialContext context, int pad, NamingEnumeration ne,
+	private void printNE(InitialContext context, int pad, NamingEnumeration<NameClassPair> ne,
 			String parentctx) throws NamingException {
 		while (ne.hasMoreElements()) {
 			NameClassPair next = (NameClassPair) ne.nextElement();

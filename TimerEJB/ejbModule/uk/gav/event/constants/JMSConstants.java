@@ -18,6 +18,13 @@ public class JMSConstants {
 	 */
 	private final static String MAX_EVENT_BLOCK = JMSConstants.class.getName()
 			+ ".EVENTS_IN_SINGLE_READ";
+	
+	/**
+	 * This property indicates the maximum number of MDBS that will be available in
+	 * the application server pool - ORACLE-specific.
+	 */
+	private final static String CONSUMER_BEANS_PROP = JMSConstants.class.getName()
+			+ ".MAX_CONSUMER_BEANS";
 
 	private static Properties prop = Environment.getJmsEnv();
 
@@ -44,4 +51,9 @@ public class JMSConstants {
 			.getProperty(MAX_EVENT_BLOCK) != null ? prop
 			.getProperty(MAX_EVENT_BLOCK) : "100");
 
+	/**
+	 * Maximum number of MDBs in the pool for email events. ORACLE-specific, so
+	 * maximum number is 16.
+	 */
+	public final static String MAX_EMAIL_BEANS = "10";
 }

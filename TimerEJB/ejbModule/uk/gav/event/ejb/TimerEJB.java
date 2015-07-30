@@ -330,7 +330,7 @@ public class TimerEJB implements TimerLocal {
 				stageEvents(eventList, timer);
 			}
 		} catch (Exception e) {
-			log.error("Exception consuming current event batch:::" + e);
+			log.error(timer.getInfo() + ":Exception consuming current event batch:::" + e);
 		}
 
 		log.info("Timer: " + timer.getInfo() + " going back to sleep");

@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<style type="text/css">
+		p { color: #000000 }
+		h1 { color: #000000 }
+		
+		p.hmrcNormal, li.hmrcNormal, div.hmrcNormal
+		{mso-style-unhide:no;
+		mso-style-qformat:yes;
+		mso-style-parent:"";
+		margin:0cm;
+		margin-bottom:.0001pt;
+		mso-pagination:widow-orphan;
+		font-size:11.0pt;
+		font-family:"Calibri","sans-serif";
+		mso-ascii-font-family:Calibri;
+		mso-ascii-theme-font:minor-latin;
+		mso-fareast-font-family:Calibri;
+		mso-fareast-theme-font:minor-latin;
+		mso-hansi-font-family:Calibri;
+		mso-hansi-theme-font:minor-latin;
+		mso-bidi-font-family:"Times New Roman";
+		mso-bidi-theme-font:minor-bidi;
+		mso-fareast-language:EN-US;}
+		
+		ul.hmrcNormal 
+		{
+		  margin: 0px;
+		  padding-left: 1.2em;
+		}
+		
+	</style>
+</head>
+<body lang="en-GB" text="#000000" bgcolor="#ffffff" dir="ltr" style="background: #ffffff">
+<div class="hmrcNormal">
+<p><br/>
+
+</p>
+<h1>Income from Letting Property</h1>
+<p>You recently told HM Revenue and Customs (HMRC) that you receive
+income from letting property.</p>
+<p>HMRC has an online learning package that tells you what you need
+to do to meet your tax obligations as a landlord. The learning
+package includes:</p>
+<ul>
+	<li/>
+<p style="margin-bottom: 0.1cm">key dates for sending HMRC
+	your tax return 
+	</p>
+	<li/>
+<p style="margin-bottom: 0.1cm">when you need to pay your tax</p>
+	<li/>
+<p style="margin-bottom: 0.1cm">what records you need to keep</p>
+	<li/>
+<p style="margin-bottom: 0.1cm">how to work out your taxable
+	profit</p>
+	<li/>
+<p style="margin-bottom: 0.1cm">what expenses you can claim</p>
+</ul>
+<p style="margin-bottom: 0.1cm"><br/>
+<br/>
+
+</p>
+<p style="margin-bottom: 0.1cm">You can find more information <a href="http://www.hmrc.gov.uk/courses/syob2/letting/index.htm?WT.mc_id=LPC1">here</a>.</p>
+</div>
+</body>
+</html>

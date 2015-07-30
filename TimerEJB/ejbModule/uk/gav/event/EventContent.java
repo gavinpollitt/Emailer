@@ -52,7 +52,7 @@ public abstract class EventContent {
 		}
 	}
 
-	protected EventEntity getOriginalEvent() {
+	public EventEntity getOriginalEvent() {
 		return originalEvent;
 	}
 

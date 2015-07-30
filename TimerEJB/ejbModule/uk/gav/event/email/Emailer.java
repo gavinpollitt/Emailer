@@ -10,11 +10,10 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
- * The class responsible for issueing the physical emails to the SMTP server.
+ * The class responsible for issuing the physical emails to the SMTP server.
  * This class is registered as a Singleton class to prevent the need for continuous
  * accessing of properties.
  * @author gavin
@@ -52,7 +51,7 @@ public final class Emailer {
 	 */
 	public void issueEmail(EventEmailContent eec) throws Exception {
 
-		log.debug("Message to Send of type:::" + eec.getContentType());
+		log.info("Message to Send of type:::" + eec.getContentType() + " for event id:" + eec.getOriginalEvent().getId());
 		log.debug("SMTP Details:::" + smtp);
 		
 		// If a secure send isn't required, the credential information will be ignored.
@@ -110,7 +109,7 @@ public final class Emailer {
 			throw e;
 		}
 		
-		log.debug("Message is sent successfully");
+		log.debug("id:" + eec.getOriginalEvent().getId() + ":Message is sent successfully");
 	}
 
 }
